@@ -51,15 +51,17 @@ public:
   typedef typename Gimpl::GaugeLinkField GaugeMat;
   typedef typename Gimpl::GaugeField GaugeLorentz;
 
-  template <typename T>
-  static void GaussianSmear(const std::vector<LatticeColourMatrix> &U, T &chi,
-                            const Real &width, int Iterations, int orthog) {
+  template<typename T>
+  static void GaussianSmear(const std::vector<LatticeColourMatrix>& U, 
+			    T& chi, 
+			    const Real& width, int Iterations, int orthog)
+  {
     GridBase *grid = chi.Grid();
     T psi(grid);
 
     ////////////////////////////////////////////////////////////////////////////////////
-    // Follow Chroma conventions for width to keep compatibility with previous
-    // data Free field iterates
+    // Follow Chroma conventions for width to keep compatibility with previous data
+    // Free field iterates 
     //   chi = (1 - w^2/4N p^2)^N chi
     //
     //       ~ (e^(-w^2/4N p^2)^N chi
@@ -68,32 +70,30 @@ public:
     //
     // Which in coordinate space is proportional to
     //
-    //   e^(-x^2/w^2) = e^(-x^2/2w'^2)
+    //   e^(-x^2/w^2) = e^(-x^2/2w'^2) 
     //
-    // The 4 is a bit unconventional from Gaussian width perspective, but...
-    // it's Chroma convention. 2nd derivative approx d^2/dx^2  =  x+mu + x-mu -
-    // 2x
+    // The 4 is a bit unconventional from Gaussian width perspective, but... it's Chroma convention.
+    // 2nd derivative approx d^2/dx^2  =  x+mu + x-mu - 2x
     //
     // d^2/dx^2 = - p^2
     //
     // chi = ( 1 + w^2/4N d^2/dx^2 )^N chi
     //
     ////////////////////////////////////////////////////////////////////////////////////
-    Real coeff = (width * width) / Real(4 * Iterations);
-
+    Real coeff = (width*width) / Real(4*Iterations);
+ 
     int dims = Nd;
-    if (orthog < Nd)
-      dims = Nd - 1;
+    if( orthog < Nd ) dims=Nd-1;
 
-    for (int n = 0; n < Iterations; ++n) {
-      psi = (-2.0 * dims) * chi;
-      for (int mu = 0; mu < Nd; mu++) {
-        if (mu != orthog) {
-          psi = psi + Gimpl::CovShiftForward(U[mu], mu, chi);
-          psi = psi + Gimpl::CovShiftBackward(U[mu], mu, chi);
-        }
+    for(int n = 0; n < Iterations; ++n) {
+      psi = (-2.0*dims)*chi;
+      for(int mu=0;mu<Nd;mu++) {
+	if ( mu != orthog ) { 
+	  psi = psi + Gimpl::CovShiftForward(U[mu],mu,chi);    
+	  psi = psi + Gimpl::CovShiftBackward(U[mu],mu,chi);    
+	}
       }
-      chi = chi + coeff * psi;
+      chi = chi + coeff*psi;
     }
   }
 
